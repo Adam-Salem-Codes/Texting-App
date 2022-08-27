@@ -1,2 +1,0 @@
-Client Log: Programming localhost 250
-92 250
