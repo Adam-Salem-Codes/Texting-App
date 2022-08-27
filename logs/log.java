@@ -20,9 +20,8 @@ public class log {
         try {
             FileWriter fw = new FileWriter(defaultLogFileName);
             fw.append(log + '\n');
+            fw.flush();
             fw.close();
         } catch (IOException e) {}
-
-        
     }
 }

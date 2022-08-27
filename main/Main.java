@@ -43,7 +43,7 @@ class Main
             try {
                 h.sendNewMessage(h.connection, System.getProperty("user.name"));
                 name = h.getNewMessage(h.connection);
-                l.writeLogs(name);
+                l.writeLogs("Client Log: " + name + " " + ip + " " + port);
             } 
             catch (IOException e1) {System.out.println("An unexpected error has occurred");}
 
@@ -55,7 +55,7 @@ class Main
                         @Override
                         public void run() {
                             while(true)
-                                try {System.out.println(name + ": " + h.getNewMessage(h.connection));} catch (IOException e) {System.out.println("An unexpected error has occurred");}
+                                try {System.out.println(name + ": " + h.getNewMessage(h.connection));} catch (IOException e) {System.out.println("An unexpected error has occurred");break;}
                         }
                     });
                     t1.start();
@@ -88,7 +88,7 @@ class Main
         try {
             h.sendNewMessage(h.server, System.getProperty("user.name"));
             name = h.getNewMessage(h.server);
-            l.writeLogs(name);
+            l.writeLogs("Server Log: " + name + " " + h.server.getRemoteSocketAddress().toString() + " " + PORT);
         } catch (IOException e1) {System.out.println("An unexpected error has occurred");}
         while(h.server.isConnected() && !(h.server.isClosed()))
         {
