@@ -38,6 +38,12 @@ public class log {
         return data;
     }
 
+    public long getFileLength(String filename)
+    {
+        File f = new File(filename);
+        return f.length();
+    }
+
     public void closeStreams() throws IOException
     {
         br.close();
