@@ -1,6 +1,7 @@
 package logs;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -11,7 +12,7 @@ public class log {
 
     String defaultLogFileName = "logs.txt";
     public File logFile;
-    private FileWriter fw;
+    private BufferedWriter bw;
     private BufferedReader br;
     public void createNewLogFile(String filename)
     {
@@ -21,9 +22,9 @@ public class log {
     public void writeLogs(String log)
     {
         try {
-            fw = new FileWriter(logFile);
-            fw.append(log + '\n');
-            fw.flush();
+            bw = new BufferedWriter(new FileWriter(logFile, true));
+            bw.append(log + '\n');
+            bw.flush();
         } catch (IOException e) {System.out.println("An error has occurred while writing to the connection logs");dots();}
     }
     public String readLogs(String filename)
@@ -40,7 +41,7 @@ public class log {
     public void closeStreams() throws IOException
     {
         br.close();
-        fw.close();
+        bw.close();
     }
     public void dots()
     {

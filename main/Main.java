@@ -1,6 +1,9 @@
 package main;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Scanner;
 import handlers.handler;
 import logs.log;
@@ -86,15 +89,37 @@ class Main
             }
 
             handler h = new handler(ip, port);
+            System.out.print("Setting up connection");
+            dots();
+            int result = h.setupConnection();   
+            int retry = 1;         
+            while(result == 1 && !(retry > 2))
+            {
+                h.setupConnection();
+                System.out.println("Try: " + retry + "/ 2");
+                retry++;
+                if(retry == 1)
+                {
+                    try {
+                        restartApplication();
+                    } catch (IOException | URISyntaxException e) {
+                        System.out.println("Error while restarting exiting");
+                        dots();
+                        System.exit(1);
+                    }
+                }
+            }
+            if(result == 2)
+            {
 
-            h.setupConnection();
+            }
 
             Thread t1 = new Thread();
 
             try {
                 h.sendNewMessage(h.connection, System.getProperty("user.name"));
                 name = h.getNewMessage(h.connection);
-                l.writeLogs("Client Log: " + name + ", " + h.connection.getRemoteSocketAddress().toString() + ", " + port);
+                l.writeLogs("Client Log: " + name + ", " + h.connection.getRemoteSocketAddress().toString() + ", " + h.connection.getPort());
                 //printLogsToConsole(false);
             } 
             catch (IOException e1) {System.out.println("An unexpected error has occurred");}
@@ -158,7 +183,7 @@ class Main
 
             name = h.getNewMessage(h.server);
 
-            l.writeLogs("Server Log: " + name + ", " + h.server.getRemoteSocketAddress().toString() + ", " + PORT);
+            l.writeLogs("Server Log: " + name + ", " + h.server.getRemoteSocketAddress().toString() + ", " + h.server.getPort());
 
         } catch (IOException e1) {System.out.println("An unexpected error has occurred");}
 
@@ -175,7 +200,7 @@ class Main
                     @Override
                     public void run() {
                         while(true)
-                            try {System.out.println(name + ": " + h.getNewMessage(h.server));} catch (IOException e) {System.out.println("An unexpected error has occurred");}
+                            try {System.out.println(name + ": " + h.getNewMessage(h.server));} catch (IOException e) {System.out.println("An unexpected error has occurred"); break;}
                     }
                 });
                 t1.start();
@@ -221,4 +246,27 @@ class Main
         for(int i = 0; i < 3; i++){try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();} System.out.print('.');}
         System.out.println();
     }
+    // Credit: https://stackoverflow.com/users/246263/veger, and https://www.codegrepper.com/code-examples/java/java+restart+program
+
+    public static void restartApplication() throws IOException, URISyntaxException
+    {
+      final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+      final File currentJar = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+    
+      /* is it a jar file? */
+      if(!currentJar.getName().endsWith(".jar"))
+        return;
+    
+      /* Build command: java -jar application.jar */
+      final ArrayList<String> command = new ArrayList<String>();
+      command.add(javaBin);
+      command.add("-jar");
+      command.add(currentJar.getPath());
+    
+      final ProcessBuilder builder = new ProcessBuilder(command);
+      builder.start();
+      System.exit(0);
+    }
+    
 }
+

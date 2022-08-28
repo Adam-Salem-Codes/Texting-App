@@ -43,13 +43,21 @@ public class handler
         return 1;
     }
 
-    public void setupConnection()
+    public int setupConnection()
     {
         try {
             connection = new Socket(this.IP, this.PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+        } catch(ConnectException e1) {
+            System.out.println("Failed to establish connection to server trying again");
+            dots();
+            return 1;
+        }catch (IOException e) {
+            System.out.println("An IO error has occurred while trying to connect to the server");
+            dots();
+            return 2;
         }
+        return 0;
     }
     public String getNewMessage(Socket s) throws IOException
     {
