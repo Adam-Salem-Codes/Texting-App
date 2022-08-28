@@ -10,65 +10,79 @@ class Main
     static String name = "";
     static log l = new log();
     static Scanner scan;
-    public static void main(String[] args) throws IOException 
+    public static void main(String[] args)
     {
 
         String input = setup();
-
+        String yesno;
         if(input.equals("j"))
         {
             l.createNewLogFile("Client_logs.txt");
             String ip = "";
             int port = -1;
-            String yesno = "";
+            yesno = "";
             String Name = "";
             while(!yesno.equalsIgnoreCase("y") && !yesno.equalsIgnoreCase("n"))
             {
                 System.out.println("Would you like to connect to someone you have previously connected to? (y/n)");
                 yesno = scan.next();
             }
-            prompt: do {
-            if(yesno.equalsIgnoreCase("y"))
-            {
-                System.out.println("Enter their windows account name: ");
-                Name = scan.next();
-                if(l.readLogs("Client_logs.txt").toLowerCase().indexOf(Name.toLowerCase()) != -1)
+            // FRIENDS LIST PROMPT...
+                prompt: do
                 {
-                    System.out.println("Friend Found!");
-                    for(int i = 0; i < 3; i++){try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();} System.out.print('.');}
-                    System.out.println();
-
-                    break prompt;
-                }
-                else
-                {
-                    System.out.println("We haven't found anyone with that name. Was that a typo? (y/n): ");
-                    char typo = scan.next().charAt(0);
-                    if(typo == 'y')
+                    if(yesno.equalsIgnoreCase("y"))
                     {
-                        continue prompt;
+                        System.out.println("Enter their windows account name: ");
+                        Name = scan.next();
+                        String logs = l.readLogs("Client_logs.txt");
+
+                        if(logs.toLowerCase().indexOf(Name.toLowerCase()) != -1)
+                        {
+                            System.out.println("Friend Found: " + Name);
+                            dots();
+                            System.out.println();
+                            ip = logs.split(",")[1];
+                            port = Integer.parseInt(ip.split(":")[1]);
+                            ip = ip.split(":")[0];
+                            ip = ip.split("/")[1];
+                            
+                            System.out.println(ip + ", " + port);
+                            break prompt;
+                        }
+                        else
+                        {
+                            System.out.println("We haven't found anyone with that name. Was that a typo? (y/n): ");
+                            char typo = scan.next().charAt(0);
+                            if(typo == 'y')
+                            {
+                                continue prompt;
+                            }
+                            else if(typo == 'n')
+                            {
+                                break prompt;
+                            }
+                        }
                     }
-                    else if(typo == 'n')
+                    else 
                     {
                         break prompt;
                     }
+                } while(true);
+                        // FRIENDS LIST PROMPT...
+                l.createNewLogFile("Client_logs.txt");
+            if(yesno.equalsIgnoreCase("n"))
+            {
+                while(!(ip.length() >= 7))
+                {
+                    System.out.println("Enter IP Address:");
+                    ip = scan.next();
                 }
-            }
-            else 
-            {
-                break prompt;
-            }
-        } while(true);
-
-            while(!(ip.length() >= 7))
-            {
-                System.out.println("Enter IP Address:");
-                ip = scan.next();
-            }
-            while(port <= 0)
-            {
-                System.out.println("Enter port:");
-                port = scan.nextInt();
+                while(port <= 0)
+                {
+                    System.out.println("Enter port:");
+                    port = scan.nextInt();
+                }
+    
             }
 
             handler h = new handler(ip, port);
@@ -80,7 +94,7 @@ class Main
             try {
                 h.sendNewMessage(h.connection, System.getProperty("user.name"));
                 name = h.getNewMessage(h.connection);
-                l.writeLogs("Client Log: " + name + " " + ip + " " + port);
+                l.writeLogs("Client Log: " + name + ", " + h.connection.getRemoteSocketAddress().toString() + ", " + port);
                 //printLogsToConsole(false);
             } 
             catch (IOException e1) {System.out.println("An unexpected error has occurred");}
@@ -111,7 +125,7 @@ class Main
             scan.close();
 
             return;
-        } // j
+        } // Connection j
 
         l.createNewLogFile("Server_logs.txt");
 
@@ -132,7 +146,7 @@ class Main
         //
         handler h = new handler("", Integer.parseInt(PORT));
         //
-        try {h.setupHost();} catch (IOException e) {System.out.println("An unexpected error has occurred");}
+        h.setupHost();
 
         System.out.println("Server has connected...");
 
@@ -144,7 +158,7 @@ class Main
 
             name = h.getNewMessage(h.server);
 
-            l.writeLogs("Server Log: " + name + " " + h.server.getRemoteSocketAddress().toString() + " " + PORT);
+            l.writeLogs("Server Log: " + name + ", " + h.server.getRemoteSocketAddress().toString() + ", " + PORT);
 
         } catch (IOException e1) {System.out.println("An unexpected error has occurred");}
 
@@ -195,17 +209,16 @@ class Main
     {
         if(!isServer)
         {
-            try {
-                System.out.println(l.readLogs("Client_logs.txt"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            System.out.println(l.readLogs("Client_logs.txt"));
             return;
         }
-        try {
-            System.out.println(l.readLogs("Server_logs.txt"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        System.out.println(l.readLogs("Server_logs.txt"));
+
+    }
+    public static void dots()
+    {
+        for(int i = 0; i < 3; i++){try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();} System.out.print('.');}
+        System.out.println();
     }
 }

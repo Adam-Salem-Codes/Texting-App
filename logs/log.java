@@ -2,6 +2,7 @@ package logs;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 public class log {
 
     String defaultLogFileName = "logs.txt";
-    File logFile;
+    public File logFile;
     private FileWriter fw;
     private BufferedReader br;
     public void createNewLogFile(String filename)
@@ -23,11 +24,12 @@ public class log {
             fw = new FileWriter(logFile);
             fw.append(log + '\n');
             fw.flush();
-        } catch (IOException e) {System.out.println("An error has occurred while writing to the connection logs....");}
+        } catch (IOException e) {System.out.println("An error has occurred while writing to the connection logs");dots();}
     }
-    public String readLogs(String filename) throws IOException
+    public String readLogs(String filename)
     {
-        Scanner sc = new Scanner(new File(filename));
+        Scanner sc = new Scanner("");
+        try {sc = new Scanner(new File(filename));} catch (FileNotFoundException e) {System.out.println("An error has occured while trying to read the log file");dots();}
         String data = "";
         while (sc.hasNextLine())
           data += sc.nextLine();
@@ -39,5 +41,10 @@ public class log {
     {
         br.close();
         fw.close();
+    }
+    public void dots()
+    {
+        for(int i = 0; i < 3; i++){try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();} System.out.print('.');}
+        System.out.println();
     }
 }

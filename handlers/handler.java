@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -25,11 +26,15 @@ public class handler
         this.IP = ipaddress;
     }
 
-    public int setupHost() throws IOException
+    public int setupHost()
     {
-        ssocket = new ServerSocket(PORT);
+        try {
+            ssocket = new ServerSocket(PORT);
+            server = ssocket.accept();  
+        } catch (IOException e) {
+            System.out.println("Failed to connect to server");
+        }
         
-        server = ssocket.accept();  
         /*while(!this.server.isConnected())
         {
             System.out.println("Waiting for incoming connections...");
@@ -80,6 +85,11 @@ public class handler
         ssocket.close();
         server.close();
 
+    }
+    public void dots()
+    {
+        for(int i = 0; i < 3; i++){try {Thread.sleep(250);} catch (InterruptedException e) {e.printStackTrace();} System.out.print('.');}
+        System.out.println();
     }
 
 }

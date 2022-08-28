@@ -1,5 +1,5 @@
 javac main/Main.java
 java main/Main
-rm main/Main.class
-rm handlers/handler.class
+del main/Main.class
+del handlers/handler.class
 PAUSE
